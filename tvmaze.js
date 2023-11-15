@@ -28,7 +28,7 @@ async function getShowsByTerm(searchInput) {
   const searchResults = (await response.json());
   console.log("first result:", searchResults);
 
-  const filteredDatas = [];
+  const shows = [];
 
   for (const searchResult of searchResults){
     const {id , name, summary} = searchResult.show;
@@ -38,19 +38,12 @@ async function getShowsByTerm(searchInput) {
       filteredData.image = searchResult.show.image.medium;
    } else filteredData.image = "https://tinyurl.com/tv-missing";
 
-   filteredDatas.push(filteredData);
+   shows.push(filteredData);
   }
 
-  // const {id , name, summary} = searchResult.show;
-  // const filteredData = {id, name, summary};
+  console.log("retrieved shows");
 
-  // if (searchResult.show.image){
-  //   filteredData.image = searchResult.show.image.medium;
-  // } else filteredData.image = "https://tinyurl.com/tv-missing";
-
-  console.log(filteredDatas);
-
-  return [filteredDatas];
+  return shows;
 }
 
 
@@ -92,6 +85,8 @@ function displayShows(shows) {
 async function searchShowsAndDisplay() {
   const term = $("#searchForm-term").val();
   const shows = await getShowsByTerm(term);
+
+  console.log("shows retrived:", shows);
 
   $episodesArea.hide();
   displayShows(shows);
