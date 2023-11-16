@@ -5,6 +5,7 @@ const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 
 const TV_MAZE_URL = "http://api.tvmaze.com";
+const MISSING_IMAGE_URL = "https://tinyurl.com/tv-missing";
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -13,35 +14,32 @@ const TV_MAZE_URL = "http://api.tvmaze.com";
  *    (if no image URL given by API, put in a default image URL)
  */
 
-async function getShowsByTerm(searchInput) {
-  console.log('making request to api')
-  // ADD: Remove placeholder & make request to TVMaze search shows API.
-  const params = new URLSearchParams({q: searchInput});
+async function getShowsByTerm(term) {
+  console.log('making request to api to get shows');
+  // Make request to TVMaze search shows API.
+  const params = new URLSearchParams({ q: term });
   const response = await fetch(
-    // note: unable to have headers
+    // note: unable to have headers for TV Maze API due to cors
     `${TV_MAZE_URL}/search/shows?${params}`,
     {
       method: "GET",
     });
 
-  //All search results (not [0])
-  const searchResults = (await response.json());
-  console.log("first result:", searchResults);
+  const searchResults = await response.json();
 
-  const shows = [];
+  const shows = searchResults.map((searchResult) => {
+    const { id, name, summary } = searchResult.show;
+    const filteredData = { id, name, summary };
 
-  for (const searchResult of searchResults){
-    const {id , name, summary} = searchResult.show;
-    const filteredData = {id, name, summary};
-
-    if (searchResult.show.image){
+    if (searchResult.show.image) {
       filteredData.image = searchResult.show.image.medium;
-   } else filteredData.image = "https://tinyurl.com/tv-missing";
+    }
+    else {
+      filteredData.image = MISSING_IMAGE_URL;
+    }
 
-   shows.push(filteredData);
-  }
-
-  console.log("retrieved shows");
+    return filteredData;
+  });
 
   return shows;
 }
@@ -61,6 +59,7 @@ function displayShows(shows) {
          <div class="media">
            <img
               src=${show.image}
+              alt=${show.name}
               class="w-25 me-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
@@ -92,7 +91,7 @@ async function searchShowsAndDisplay() {
   displayShows(shows);
 }
 
-$searchForm.on("submit", async function handleSearchForm (evt) {
+$searchForm.on("submit", async function handleSearchForm(evt) {
   evt.preventDefault();
   await searchShowsAndDisplay();
 });
@@ -102,10 +101,42 @@ $searchForm.on("submit", async function handleSearchForm (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id) {
+  // http://api.tvmaze.com/shows/[showid]/episodes
+  console.log('making request to api to get episodes');
+  // Make request to TVMaze search shows API.
+  const response = await fetch(
+    // note: unable to have headers for TV Maze API due to cors
+    `${TV_MAZE_URL}/shows/${id}/episodes`,
+    {
+      method: "GET",
+    });
+
+  const searchResults = await response.json();
+
+  const episodes = searchResults.map((searchResult) => {
+    const { id, name, season, number } = searchResult;
+    const filteredData = { id, name, season, number };
+
+    return filteredData;
+  });
+
+  console.log('Show id:', id);
+  console.log('Episodes found:', episodes);
+  return episodes;
+}
 
 /** Write a clear docstring for this function... */
 
-// function displayEpisodes(episodes) { }
+function displayEpisodes(episodes) {
+  for (const episode of episodes) {
+    $showsList.append(
+      $('<li>')
+        .text(
+          `${episode.name} (season ${episode.season}, number ${episode.number})`
+        )
+    );
+  }
+}
 
 // add other functions that will be useful / match our structure & design
