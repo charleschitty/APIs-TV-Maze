@@ -2,6 +2,7 @@
 
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
+const $episodesList = $("#episodesList");
 const $searchForm = $("#searchForm");
 
 const TV_MAZE_URL = "http://api.tvmaze.com";
@@ -123,13 +124,14 @@ async function getEpisodesOfShow(id) {
 }
 
 /** Given an array of episodes data from getEpisodesOfShow, appends episode
- * data into the DOM by populating #episodesList
+ * data into the DOM by populating #episodesList. Clear episodes list first.
  */
 
 async function displayEpisodes(episodes) {
 
+  $episodesList.empty();
   for (const episode of episodes) {
-    $episodesArea.append(
+    $episodesList.append(
       $('<li>')
         .text(
           `${episode.name} (season ${episode.season}, number ${episode.number})`
@@ -156,16 +158,15 @@ async function searchEpisodesAndDisplay(id){
 }
 
 /** Add listener to episodes button. Get Parent element to obtain show id
- * Hide button once pressed
 */
 
 $showsList.on("click", "button", async function handleEpisodesButton(evt) {
   evt.preventDefault();
+
   console.log("clicked episodes button");
   const id = $(evt.target).parents().eq(2).attr('data-show-id');
   console.log('show ID:', id);
 
   await searchEpisodesAndDisplay(id);
 
-  $(evt.target).hide();
 });
