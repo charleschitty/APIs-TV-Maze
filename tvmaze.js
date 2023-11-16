@@ -102,11 +102,9 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
  */
 
 async function getEpisodesOfShow(id) {
-  // http://api.tvmaze.com/shows/[showid]/episodes
   console.log('making request to api to get episodes');
   // Make request to TVMaze search shows API.
   const response = await fetch(
-    // note: unable to have headers for TV Maze API due to cors
     `${TV_MAZE_URL}/shows/${id}/episodes`,
     {
       method: "GET",
@@ -126,11 +124,15 @@ async function getEpisodesOfShow(id) {
   return episodes;
 }
 
-/** Write a clear docstring for this function... */
+/** Given an object of episodes data from getEpisodesOfShow, appends episode
+ * data into the DOM by populating #episodesList
+ */
 
-function displayEpisodes(episodes) {
+async function displayEpisodes(episodes) {
+  console.log(typeof episodes)
+  console.log(episodes)
   for (const episode of episodes) {
-    $showsList.append(
+    $episodesArea.append(
       $('<li>')
         .text(
           `${episode.name} (season ${episode.season}, number ${episode.number})`
@@ -138,5 +140,17 @@ function displayEpisodes(episodes) {
     );
   }
 }
+
+async function searchEpisodesAndDisplay(){
+  //button pressed will call this function
+  const episodes = await getEpisodesOfShow(id);
+  await displayEpisodes(episodes);
+}
+
+$showsList.on("click", "button", async function(evt) {
+  evt.preventDefault();
+  $episodesArea.hide();
+  console.log("clicked");
+});
 
 // add other functions that will be useful / match our structure & design
