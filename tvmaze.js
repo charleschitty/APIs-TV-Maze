@@ -141,7 +141,7 @@ async function displayEpisodes(episodes) {
   console.log('displayEpisodes completed');
 }
 
-/**  * Handle episode button submission: get shows from API and display.
+/**  * Handle episode button submission: get episodes from API and display.
  *   Show episodes area and add found episodes to that area*/
 
 async function searchEpisodesAndDisplay(id){
@@ -161,10 +161,10 @@ async function searchEpisodesAndDisplay(id){
 */
 
 $showsList.on("click", "button", async function handleEpisodesButton(evt) {
-  evt.preventDefault();
 
   console.log("clicked episodes button");
-  const id = $(evt.target).parents().eq(2).attr('data-show-id');
+  // Use jQuery .closest() method and make id a number, change variable id to showId
+  const id = $(evt.target).closest('.Show').attr('data-show-id');
   console.log('show ID:', id);
 
   await searchEpisodesAndDisplay(id);
