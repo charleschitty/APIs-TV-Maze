@@ -44,7 +44,6 @@ async function getShowsByTerm(term) {
   return shows;
 }
 
-
 /** Given list of shows, create markup for each and append to DOM.
  *
  * A show is {id, name, summary, image}
@@ -76,7 +75,6 @@ function displayShows(shows) {
   }
 }
 
-
 /** Handle search form submission: get shows from API and display.
  *    Hide episodes area (that only gets shown if they ask for episodes)
  */
@@ -103,7 +101,7 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
 
 async function getEpisodesOfShow(id) {
   console.log('making request to api to get episodes');
-  // Make request to TVMaze search shows API.
+  // Make request to TVMaze search episodes API.
   const response = await fetch(
     `${TV_MAZE_URL}/shows/${id}/episodes`,
     {
@@ -124,13 +122,12 @@ async function getEpisodesOfShow(id) {
   return episodes;
 }
 
-/** Given an object of episodes data from getEpisodesOfShow, appends episode
+/** Given an array of episodes data from getEpisodesOfShow, appends episode
  * data into the DOM by populating #episodesList
  */
 
 async function displayEpisodes(episodes) {
-  console.log(typeof episodes)
-  console.log(episodes)
+
   for (const episode of episodes) {
     $episodesArea.append(
       $('<li>')
@@ -139,18 +136,36 @@ async function displayEpisodes(episodes) {
         )
     );
   }
+  console.log('displayEpisodes completed');
 }
 
-async function searchEpisodesAndDisplay(){
-  //button pressed will call this function
+/**  * Handle episode button submission: get shows from API and display.
+ *   Show episodes area and add found episodes to that area*/
+
+async function searchEpisodesAndDisplay(id){
+
+  console.log('getting episodes for show:', id);
+  $episodesArea.show();
+
   const episodes = await getEpisodesOfShow(id);
+
+  console.log('episodes retrieved:', episodes);
   await displayEpisodes(episodes);
+
+  console.log('added episodes to episodes area');
 }
 
-$showsList.on("click", "button", async function(evt) {
-  evt.preventDefault();
-  $episodesArea.hide();
-  console.log("clicked");
-});
+/** Add listener to episodes button. Get Parent element to obtain show id
+ * Hide button once pressed
+*/
 
-// add other functions that will be useful / match our structure & design
+$showsList.on("click", "button", async function handleEpisodesButton(evt) {
+  evt.preventDefault();
+  console.log("clicked episodes button");
+  const id = $(evt.target).parents().eq(2).attr('data-show-id');
+  console.log('show ID:', id);
+
+  await searchEpisodesAndDisplay(id);
+
+  $(evt.target).hide();
+});
