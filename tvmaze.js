@@ -32,12 +32,11 @@ async function getShowsByTerm(term) {
     const { id, name, summary } = searchResult.show;
     const filteredData = { id, name, summary };
 
-    if (searchResult.show.image) {
-      filteredData.image = searchResult.show.image.medium;
-    }
-    else {
-      filteredData.image = MISSING_IMAGE_URL;
-    }
+
+    // user ternary to account for missing image
+    filteredData.image =
+      searchResult.show.image ?
+        searchResult.show.image.medium : MISSING_IMAGE_URL;
 
     return filteredData;
   });
@@ -144,7 +143,7 @@ async function displayEpisodes(episodes) {
 /**  * Handle episode button submission: get episodes from API and display.
  *   Show episodes area and add found episodes to that area*/
 
-async function searchEpisodesAndDisplay(showId){
+async function searchEpisodesAndDisplay(showId) {
 
   console.log('getting episodes for show:', showId);
   $episodesArea.show();
